@@ -8,10 +8,10 @@ namespace AcademyProject
 {
     class Student
     {
-        public String lastName { get; private set; }
-        String firstName;
+        public String LastName { get; set; }
+        public String FirstName { get; set; }
         byte age;
-        byte Age
+        public byte Age
         {
             set
             {
@@ -28,23 +28,15 @@ namespace AcademyProject
 
         public Student(string firstName, string lastName, byte age)
         {
-            this.firstName = firstName;
-            this.lastName = lastName;
+            this.FirstName = firstName;
+            this.LastName = lastName;
             this.Age = age;
         }
 
 
         public override string ToString()
         {
-            return String.Format("{0}\t{1}\t{2,3} лет", this.lastName, this.firstName, this.Age);
-        }
-
-        public bool EditInfo(Student student)
-        {
-            this.firstName = student.firstName;
-            this.lastName = student.lastName;
-            this.Age = student.age;
-            return true;
+            return String.Format("{0}\t{1}\t{2,3} лет", this.LastName, this.FirstName, this.Age);
         }
     }
 

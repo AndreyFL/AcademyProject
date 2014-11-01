@@ -9,34 +9,29 @@ namespace AcademyProject
     class Group
     {
         public string Name { get; set; }
-        List<Student> students = new List<Student>();// список экземпляров объектов
+        List<Student> students   = new List<Student>();// список экземпляров класса студент
+        public List<Student> Students {
+            get
+            {
+                return students;
+            }
+            set
+            {
+                students = value;
+            }
+        }
         public Group(string name)
         {
             this.Name = name;
         }
 
-        public bool FindByLastName(string partOfLastName, out Student findedStudent)
-        {
-            foreach (Student student in students)
-            {
-                if (student.lastName.ToLower().Contains(partOfLastName.ToLower()))
-                {
-                    findedStudent = student;
-                    return true;
-                }
-            }
-            findedStudent = null;
-            return false;
-        }
-
-
         public override string ToString()
         {
             string tempStr = "";
             tempStr += string.Format("{0}\n", this.Name);
-            for (int i = 0; i < students.Count; i++)
+            for (int i = 0; i < Students.Count; i++)
             {
-                tempStr += string.Format("{0}\n", students[i].ToString());
+                tempStr += string.Format("{0}\n", Students[i].ToString());
             }
             return tempStr;
         }
@@ -44,14 +39,14 @@ namespace AcademyProject
 
         public bool AddStudent(Student student)
         {
-            this.students.Add(student);
+            this.Students.Add(student);
             return true;
         }
 
 
         public bool RemoveStudent(Student student)
         {
-            return this.students.Remove(student);
+            return this.Students.Remove(student);
         }
     }
 

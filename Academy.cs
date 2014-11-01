@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AcademyProject
@@ -85,9 +86,13 @@ namespace AcademyProject
         {
             foreach (Group grp in groups)
             {
-                if (grp.FindByLastName(partOfLastName, out findedStudent))
+                for (int i = 0; i < grp.Students.Count; i++)
                 {
-                    return grp;
+                    if (grp.Students[i].LastName.ToLower().Contains(partOfLastName.ToLower()))
+                    {
+                        findedStudent = grp.Students[i]; 
+                        return grp;
+                    }
                 }
             }
             findedStudent = null;
@@ -143,7 +148,12 @@ namespace AcademyProject
             Student findedStudent;
             Group group = this.FindStudentByLastName(lastName, out findedStudent);
             if (group != null)
-                return findedStudent.EditInfo(newStudentInfo);
+            {
+                findedStudent.FirstName = newStudentInfo.FirstName;
+                findedStudent.LastName = newStudentInfo.LastName;
+                findedStudent.Age = newStudentInfo.Age;
+                return true;
+            }
             else
                 return false;
         }
