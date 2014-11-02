@@ -13,6 +13,7 @@ namespace AcademyProject
         public string Name { private set; get; }
         List<Group> groups = new List<Group>();// Список содержащий экземпляры групп
 
+        // Конструктор академии
         public Academy(string name)
         {
             this.Name = name;
@@ -23,16 +24,15 @@ namespace AcademyProject
         public void AddGrp(string grpName)
         {
             groups.Add(new Group(grpName));
-            Group group = FindGrpByName(grpName);// получаю ссылку на группу
+            Group group = groups[groups.Count - 1];// получаю ссылку на вновь созданную группу
             Random r = new Random();
             byte studentsAmount = (byte)r.Next(3, 8);// случайное количество студентов в каждой группе
             for (int i = 0; i < studentsAmount; i++)
             {
-                group.AddStudent(new Student("Имя" + r.Next(100), "Фамилия" + r.Next(100), (byte)r.Next(17, 31)));
+                group.Students.Add(new Student("Имя" + r.Next(100), "Фамилия" + r.Next(100), (byte)r.Next(17, 31)));
                 Thread.Sleep(40);
             }
         }
-
 
         public override string ToString()
         {
@@ -42,25 +42,27 @@ namespace AcademyProject
             return tmpString;
         }
 
-
         public bool AddStudent(string grpName, string lastName, string firstName, byte age, out string errorDescription)
         {
             errorDescription = "";
-            Student newStudent;
-            this.FindStudentByLastName(lastName, out newStudent);
-            if (newStudent != null)// проверка, числится ли в академии студент с такой же фамилией.если да, нового не добавляем, разделение студентов в данной программе только по фамилии.
+            List<Student> findedStudent;
+
+            FindStudentByLastName(lastName, out findedStudent);
+            if (findedStudent.Count != 0)// проверка, числится ли в академии студент с такой же фамилией.если да, нового не добавляем, разделение студентов в данной программе только по фамилии.
             {
                 errorDescription = string.Format("Ошибка: студент с фамилией \"{0}\" уже проходит обучение!", lastName);
                 return false;
             }
 
-            newStudent = new Student(firstName, lastName, age);
+            Student newStudent = new Student(firstName, lastName, age);
 
-            Group group = FindGrpByName(grpName);
-
+            Group group = FindGrpByName(grpName);// Нахожу экземпляр группы в которую хотим добавить студента.
 
             if (group != null)
-                return group.AddStudent(newStudent);
+            {
+                group.Students.Add(newStudent);
+                return true;
+            }
             else
             {
                 errorDescription = "Ошибка: не правильно указано имя группы!";
@@ -68,49 +70,64 @@ namespace AcademyProject
             }
         }
 
-
-        public bool RemoveStudent(string lastName, out Student student)
+        // Удалить данные о студенте.
+        public bool RemoveStudent(string lastName, out string errorDescription)
         {
-            Group group = this.FindStudentByLastName(lastName, out student);
-            if (group != null)
-                return group.RemoveStudent(student);
+            errorDescription = "";
+            List<Student> student;
+            List<Group> group = FindStudentByLastName(lastName, out student);
+            if (student.Count == 1)
+                return group[0].Students.Remove(student[0]);
+            else if (student.Count == 0)
+                errorDescription = "Ошибка: заданным критериям поиска не соответствует ни один студент!";
             else
             {
-                student = null;
-                return false;
+                errorDescription = "Ошибка: указанным критериям поиска соответствуют более чем один студент!";
+                for (int i = 0; i < student.Count; i++)
+                    errorDescription += string.Format("{0} обучается в => {1}", student[i], group[i]);
             }
+            return false;
         }
 
-
-        public Group FindStudentByLastName(string partOfLastName, out Student findedStudent)
+        // Нахожу экземпляры класса студент, фамилии которых подходит под условие поиска.
+        // Возвращаю экземпляры студента через out и экземпляр группы через метод.
+        public List<Group> FindStudentByLastName(string partOfLastName, out List<Student> findedStudents)
         {
-            foreach (Group grp in groups)
+            List<Group> groupsList = new List<Group>();
+            findedStudents = new List<Student>();
+            foreach (Group grp in this.groups)
             {
                 for (int i = 0; i < grp.Students.Count; i++)
                 {
                     if (grp.Students[i].LastName.ToLower().Contains(partOfLastName.ToLower()))
                     {
-                        findedStudent = grp.Students[i]; 
-                        return grp;
+                        findedStudents.Add(grp.Students[i]);
+                        groupsList.Add(grp);
                     }
                 }
             }
-            findedStudent = null;
-            return null;
+            return groupsList;
         }
 
 
         public bool MoveStudent(string newGrpName, string lastName, out string errorDescription)
         {
             errorDescription = "";
-            Student tmpStudent;
-            Group oldGroup = FindStudentByLastName(lastName, out tmpStudent);
+            List<Student> movedStudent;
+            List<Group> oldGroup = FindStudentByLastName(lastName, out movedStudent);
+            if (movedStudent.Count>1)
+            {
+                errorDescription = "Ошибка: указанным критериям поиска соответствуют более чем один студент!\n";
+                for (int i = 0; i < movedStudent.Count; i++)
+                    errorDescription += string.Format("{0} обучается в => {1}\n", movedStudent[i], oldGroup[i].Name);
+                return false;
+            }
 
             Group newGroup = FindGrpByName(newGrpName);
 
-            if (oldGroup == null)
+            if (oldGroup.Count==0)
             {
-                errorDescription = string.Format("В академии не обучается студент \"{0}\"", lastName);
+                errorDescription = string.Format("Ошибка: в академии не обучается студент \"{0}\"!", lastName);
                 return false;
             }
             if (newGroup == null)
@@ -119,16 +136,9 @@ namespace AcademyProject
                 return false;
             }
 
-            if (oldGroup.RemoveStudent(tmpStudent))
-                if (newGroup.AddStudent(tmpStudent))
-                    return true;
-                else
-                {
-                    oldGroup.AddStudent(tmpStudent);
-                    errorDescription = "Ошибка: не удалось переместить студента в новую группу, студент возвращен в старую!";
-                    return false;
-                }
-            return false;
+            oldGroup[0].Students.Remove(movedStudent[0]);
+            newGroup.Students.Add(movedStudent[0]);
+            return true;
         }
 
 
@@ -143,19 +153,29 @@ namespace AcademyProject
 
 
         // Изменение данных студента. Поиск изменяемого студента производится по фамилии.
-        public bool Rename(string lastName, Student newStudentInfo)
+        public bool Rename(string lastName, Student newStudentInfo, out string errorDescription)
         {
-            Student findedStudent;
-            Group group = this.FindStudentByLastName(lastName, out findedStudent);
-            if (group != null)
+            errorDescription = "";
+            List<Student> findedStudent;
+            List<Group> group = FindStudentByLastName(lastName, out findedStudent);
+            if (findedStudent.Count == 1)
             {
-                findedStudent.FirstName = newStudentInfo.FirstName;
-                findedStudent.LastName = newStudentInfo.LastName;
-                findedStudent.Age = newStudentInfo.Age;
+                findedStudent[0].FirstName = newStudentInfo.FirstName;
+                findedStudent[0].LastName = newStudentInfo.LastName;
+                findedStudent[0].Age = newStudentInfo.Age;
                 return true;
             }
+            else if (findedStudent.Count == 0)
+            {
+                errorDescription = "Ошибка: заданным критериям поиска не соответствует ни один студент!";
+            }
             else
-                return false;
+            {
+                errorDescription = "Ошибка: указанным критериям поиска соответствуют более чем один студент!";
+                for (int i = 0; i < findedStudent.Count; i++)
+                    errorDescription += string.Format("{0} обучается в => {1}", findedStudent[i], group[i]);
+            }
+            return false;
         }
 
         // Переименование группы. Поиск исходной группы выполняется по имени группы.
@@ -175,5 +195,4 @@ namespace AcademyProject
             }
         }
     }
-
 }

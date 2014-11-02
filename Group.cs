@@ -9,19 +9,11 @@ namespace AcademyProject
     class Group
     {
         public string Name { get; set; }
-        List<Student> students   = new List<Student>();// список экземпляров класса студент
-        public List<Student> Students {
-            get
-            {
-                return students;
-            }
-            set
-            {
-                students = value;
-            }
-        }
+        public List<Student> Students { get; set; }
+
         public Group(string name)
         {
+            Students = new List<Student>();
             this.Name = name;
         }
 
@@ -30,24 +22,8 @@ namespace AcademyProject
             string tempStr = "";
             tempStr += string.Format("{0}\n", this.Name);
             for (int i = 0; i < Students.Count; i++)
-            {
-                tempStr += string.Format("{0}\n", Students[i].ToString());
-            }
+                tempStr += string.Format("{0} - {1}\n",i+1, Students[i].ToString());
             return tempStr;
         }
-
-
-        public bool AddStudent(Student student)
-        {
-            this.Students.Add(student);
-            return true;
-        }
-
-
-        public bool RemoveStudent(Student student)
-        {
-            return this.Students.Remove(student);
-        }
     }
-
 }

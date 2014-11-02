@@ -10,21 +10,7 @@ namespace AcademyProject
     {
         public String LastName { get; set; }
         public String FirstName { get; set; }
-        byte age;
-        public byte Age
-        {
-            set
-            {
-                if (value > 7 && value < 150)
-                    age = value;
-                else
-                    throw new Exception();
-            }
-            get
-            {
-                return age;
-            }
-        }
+        public byte Age { get; set; }
 
         public Student(string firstName, string lastName, byte age)
         {
@@ -36,7 +22,24 @@ namespace AcademyProject
 
         public override string ToString()
         {
-            return String.Format("{0}\t{1}\t{2,3} лет", this.LastName, this.FirstName, this.Age);
+            string ageMeasure;
+            switch (this.Age % 10)
+            {
+                case 1:
+                    ageMeasure = "год";
+                    break;
+                case 2:
+                case 3:
+                case 4:
+                    ageMeasure = "года";
+                    break;
+                default:
+                    ageMeasure = "лет";
+                    break;
+
+            }
+
+            return String.Format("{0}\t{1}\t{2,3} {3}", this.LastName, this.FirstName, this.Age, ageMeasure);
         }
     }
 
