@@ -11,12 +11,13 @@ namespace AcademyProject
     class Academy
     {
         public string Name { private set; get; }
-        List<Group> groups = new List<Group>();// Список содержащий экземпляры групп
+        public List<Group> groups { get; set; } // Список содержащий экземпляры групп
 
         // Конструктор академии
         public Academy(string name)
         {
             this.Name = name;
+            groups = new List<Group>();
         }
 
 
@@ -38,7 +39,7 @@ namespace AcademyProject
         {
             string tmpString = string.Format("\nАкадемия: {0}\n", this.Name);
             for (int i = 0; i < groups.Count; i++)
-                tmpString += string.Format("\nНазвание группы: {0}", groups[i].ToString());
+                tmpString += string.Format("{0}", groups[i].ToString());
             return tmpString;
         }
 
@@ -79,12 +80,12 @@ namespace AcademyProject
             if (student.Count == 1)
                 return group[0].Students.Remove(student[0]);
             else if (student.Count == 0)
-                errorDescription = "Ошибка: заданным критериям поиска не соответствует ни один студент!";
+                errorDescription = "Ошибка: заданным критериям поиска не соответствует ни один студент!\n";
             else
             {
-                errorDescription = "Ошибка: указанным критериям поиска соответствуют более чем один студент!";
+                errorDescription = "Ошибка: указанным критериям поиска соответствуют более чем один студент!\n";
                 for (int i = 0; i < student.Count; i++)
-                    errorDescription += string.Format("{0} обучается в => {1}", student[i], group[i]);
+                    errorDescription += string.Format("{0} обучается в => {1}\n", student[i], group[i].Name);
             }
             return false;
         }
@@ -115,7 +116,7 @@ namespace AcademyProject
             errorDescription = "";
             List<Student> movedStudent;
             List<Group> oldGroup = FindStudentByLastName(lastName, out movedStudent);
-            if (movedStudent.Count>1)
+            if (movedStudent.Count > 1)
             {
                 errorDescription = "Ошибка: указанным критериям поиска соответствуют более чем один студент!\n";
                 for (int i = 0; i < movedStudent.Count; i++)
@@ -125,7 +126,7 @@ namespace AcademyProject
 
             Group newGroup = FindGrpByName(newGrpName);
 
-            if (oldGroup.Count==0)
+            if (oldGroup.Count == 0)
             {
                 errorDescription = string.Format("Ошибка: в академии не обучается студент \"{0}\"!", lastName);
                 return false;
@@ -143,7 +144,7 @@ namespace AcademyProject
 
 
         // Приватный метод для нахождения и возврата ссылки на экземпляр группы, поиск по полю Name.
-        Group FindGrpByName(string grpName)
+        public Group FindGrpByName(string grpName)
         {
             for (int i = 0; i < groups.Count; i++)
                 if (groups[i].Name == grpName)

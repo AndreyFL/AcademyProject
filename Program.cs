@@ -29,6 +29,7 @@ namespace AcademyProject
                 Console.WriteLine("4. Удалить студента.");
                 Console.WriteLine("5. Изменение данных студента.");
                 Console.WriteLine("6. Переименование группы.");
+                Console.WriteLine("7. Отобразить список студентов группы/академии.");
                 Console.WriteLine("\nq. Выход");
 
                 try
@@ -57,7 +58,10 @@ namespace AcademyProject
                         StudentRenameChoice(academy);
                         break;
                     case '6':
-                        GroupRenameChioce(academy);
+                        GroupRenameChoice(academy);
+                        break;
+                    case '7':
+                        ShowMembersChoice(academy);
                         break;
                     default:
                         key = 'q';
@@ -125,7 +129,7 @@ namespace AcademyProject
         static void RemoveStudentChoice(Academy academy)
         {
             //List<Student> findedStudent;
-            string errorDescription;
+            string errorDescription = "";
             Console.Write("Введите фамилию студента, которого необходимо удалить: ");
             string lastName = Console.ReadLine();
             if (!academy.RemoveStudent(lastName, out errorDescription))
@@ -152,8 +156,8 @@ namespace AcademyProject
             {
                 Console.Write("Введите фамилию студента, по умолчанию ({0}): ", oldStudentInfo[0].LastName);
                 string lastName = Console.ReadLine();
-                if (lastName=="")
-                    lastName= oldStudentInfo[0].LastName;
+                if (lastName == "")
+                    lastName = oldStudentInfo[0].LastName;
 
                 Console.Write("Введите имя студента, по умолчанию ({0}): ", oldStudentInfo[0].FirstName);
                 string firstName = Console.ReadLine();
@@ -162,12 +166,13 @@ namespace AcademyProject
 
                 Console.Write("Введите возраст студента, по умолчанию ({0}): ", oldStudentInfo[0].Age);
                 string ageStr = Console.ReadLine();
-                byte age=0;
+                byte age = 0;
                 bool isAgeCorrect = true;
                 if (ageStr == "")
                     age = oldStudentInfo[0].Age;
                 else
-                    try {
+                    try
+                    {
                         age = Convert.ToByte(ageStr);
                     }
                     catch
@@ -187,7 +192,7 @@ namespace AcademyProject
         }
 
         // Пункт меню переименовать группу.
-        static void GroupRenameChioce(Academy academy)
+        static void GroupRenameChoice(Academy academy)
         {
             string errorDescription;
             Console.Write("Введите текущее название группы: ");
@@ -196,6 +201,29 @@ namespace AcademyProject
             string newGrpName = Console.ReadLine();
             if (!academy.Rename(oldGrpName, newGrpName, out errorDescription))
                 WriteMessageWithDelay(errorDescription);
+        }
+
+        // Пункт меню вывод списка студентов.
+        static void ShowMembersChoice(Academy academy)
+        {
+            Console.Clear();
+            foreach (Group grp in academy.groups)
+                Console.WriteLine("Группа: {0}", grp.Name);
+            Console.WriteLine("Отобразить студентов, введите название группы, (по умолчанию - вся академия):");
+            string grpName = Console.ReadLine();
+            if (grpName == "")
+                WriteMessageWithDelay(academy.ToString());
+            else
+            {
+                foreach (Group grp in academy.groups)
+                    if (grpName == grp.Name)
+                    {
+                        WriteMessageWithDelay(academy.FindGrpByName(grpName).ToString());
+                        break;
+                    }
+                    else
+                        WriteMessageWithDelay("Ошибка: введенное название \"" + grpName + "\" не является названием группы!");
+            }
         }
     }
 }

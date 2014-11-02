@@ -20,7 +20,7 @@ namespace AcademyProject
         public override string ToString()
         {
             string tempStr = "";
-            tempStr += string.Format("{0}\n", this.Name);
+            tempStr += string.Format("Группа: {0}\n", this.Name);
             for (int i = 0; i < Students.Count; i++)
                 tempStr += string.Format("{0} - {1}\n",i+1, Students[i].ToString());
             return tempStr;
